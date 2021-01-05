@@ -716,6 +716,67 @@ service-worker：运行在浏览器背后的独立线程，使用它必须用htt
 
 ### 如何优化网站
 
+### React中key的作用
+### 调用setState之后发生什么
+### react生命周期
+### shouldComponentUpdate是干嘛的？性能优化哪个生命周期
+###  为什么虚拟DOm提高性能
+###  React diff
+### React中refs作用，使用的场景
+### 展示组件和容器组件有何区别
+### 类组件何函数组件区别
+###  组件的state何props区别
+###  何为受控组件和非受控组件
+### 何为高阶组件，高阶组件作用
+###  什么是纯组件
+###  为什么建议传递给setState的参数是个callBack而不是一个对象
+###  除了在构造函数中绑定this还有别的方法吗
+###  在构造函数中调super有什么作用？
+### 写constructor何不写constructor有什么区别
+### 应该在react何处发起ajax请求
+### 描述事件在react中的处理方式
+###  createElement何cloneElement区别
+###  React中三种构建组件的方式
+###  react组件划分业务组件技术组价？
+### 简述flux思想
+### react用过哪些脚手架
+### react特点
+### react优点
+### react限制
+###  什么是jsx
+###  虚拟DOM工作原理
+### 为什么浏览器无法读取jsx
+###  何es5相比，react的es6语法有何不同
+###  如何理解“react中一切都是组件”
+### react中render目的
+###  如何将两个或者多个组件嵌套到一个组件
+### 什么是props
+### react中的状态是什么？如何使用的
+###  区分props何state
+###  为何要用setState更新状态而不是直接this.state=...
+### react中箭头函数是什么怎么用？
+### 区分有状态组件和无状组件
+###  如何在react中创建一个事件
+###  react中合成事件是什么
+###   如何模块化react中的代码
+###  如何在react中创建表单
+###  MVC主要问题是什么
+###  redux相关
+### Redux遵循的原则
+###   你对单一数据源有什么理解
+### 列出redux的组件
+### 数据如何通过redux流动
+###  如何在Redux中定义action
+### 解释reducer的作用
+### Store在redux中的意义是什么
+### redux何flux有什么不同
+### 什么是react路由
+### 为什么react路由v4中使用switch关键字
+### 为什么需要react中的路由
+###   列出React Router的优点
+###  react路由和常规路由有何不同
+
+
 
 
 67、你的优点/竞争力
