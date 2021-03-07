@@ -315,6 +315,18 @@ super写与不写：如果你用到了constructor就要写super，connstructor�
 ###  虚拟DOM工作原理
 
 ### 为什么浏览器无法读取jsx
+浏览器只能识别html，
+为什么能识别？
+通过babel编译后就能识别，babel通过调用Rect.createElement这个api，
+React.createElement('div', {}, createElement('span', {}, {}))
+调用ReactDOM.render后实际上穿进去的是一个对象
+{
+  $$typeof:Symbol.for(''),  不能用字符串，防止后台传一些注入，攻击的，匹配了$$typeof的其他内容，后台没Symbol
+  type,
+  key:
+  props:
+}
+
 ###  何es5相比，react的es6语法有何不同
 
 ### react中的状态是什么，props是什么？如何使用的
@@ -852,20 +864,58 @@ requestAnimationFrame：在下一个动画帧调度前执行高优先级函数
 requestIdleCallback方法提高deadline，即限制任务执行时间，以切分任务，避免任务长时间执行，阻塞UI渲染而导致掉帧
 并不是所有浏览器都支持requestIdleCallback，但是react内部实现了自己的polyfill，不必担心兼容
 
+
+
+react自始至终管理者三种东西：
+1）root，根，有个属性指向current树，有一个属性指向workInprogress树。
+2）current树，树上每个节点都是fiber节点，每个节点保存的是上一次的状态，每个fiber节点对应jsx节点
+3）workInProgress树，保存的是本次更新的状态，并且每个fiber节点都对应一个jsx节点
+
+初次渲染时候，没有current树，没有上一次的状态，react在一开始创建root的时候，就会创建一个uninitialFiber（未初始化的fiber）
+它让react的current暂时指向uninitialFiber，因为react需要上次状态和本次状态对比更新，而未初始fiber上属性都是null。
+第一次是：workInProgress和uninitialFiber对比。
+
+react主要分2个阶段：
+1）render阶段：创建fiber的过程叫render阶段
+    1：为每个阶段创建workInProgress，也有可能是复用之前fiber，生成一个新的workInProgress树。
+    2：初次渲染的时候（或创建了某个节点的时）会将这个fiber创建真实的dom实例（createElement创建真实dom）。
+       只是创建，还没有向页面上插入。并且对当前节点的子节点进行插入（appendChild）。
+    3：如果不是初次渲染，就对比新旧fiber的状态，将产生了更新的节点，通过链表的方式，挂载到rootFiber上。
+
+
+
+2）commit阶段：才是真正要操作页面的阶段。
+  1：执行生命周期
+  2：会从RootFiber上获取到链表，根据链表上的标识来操作页面。
+
+
+  
 Fiber数据结构：
     stateNode：保存与fiber关联的localState
     type： 类组件：构造函数， dom元素： html标识
-    tag：定义fiber类型。Reconciler通过它来确定需要完成哪些工作，类：1， 函数：0， host：5
+    tag：定义fiber类型。Reconciler通过它来确定需要完成哪些工作，函数：0 ， 类：1， host：5
     updateQueue： state更新，回调以及DOM更新的队列
     memolizedState: 缓存的之前组件state对象，便于恢复
     memolizedProps： 缓存的之前组件props对象，便于恢复
-    penddingProps：子组件或者dom中要改变的props（当前处理过程中的组件props对象）
+    penddingProps：子组件或者dom中要改变的props（当前处理过程中的组件props对象）新进来的props
     key： 唯一标识，用于更快的找出哪些节点增删改
     return： 当前fiber的父级fiber
     sibling：大弟弟
     child：大儿子
     index
-    effectTag：React中Dom节点state和props的改变导致视图改变的操作称为side effect，effectTag就是记录这种操作，二进制形式，因此可以累加
+    effectTag：React中Dom节点state和props的改变导致视图改变的操作称为side effect，effectTag就是记录这种操作，二
+    nextEffect
+    firstEffect:
+    lastEffect:
+    expriationTime:本质上是优先级
+    alternate：连接current和workIProgress双向连接
+    updateQueue： 当前fiber的新的状态，比如调2次setState({num: 3}) setState({num :6}),以链表形式先挂3，再挂6，保存新状态的链表
+    1：找fiber
+    2：创建更新
+    3：吧更新放到updateQueue上面
+    
+
+    进制形式，因此可以累加
             export type  SideEffectTag: number;
             export const NoEffect = 0;
             export const PerformedWork = 1;
@@ -876,10 +926,6 @@ Fiber数据结构：
   fiber提供了一个叫effect list的数组，包含了需要改变的react element对应的fiber对象（firstEffect， lastEffect）
   effect list好处是可以快速拿到状态改变的DOM而不必遍历整颗React Root
 
-  nextEffect
-  firstEffect:
-  lastEffect:
-  expriationTime:本质上是优先级
 
 最早将Priority分为5级：
 {
@@ -926,6 +972,12 @@ scheduleWork -> requestWork -> performSyncWork/performAsyncWork -> workloop -> p
 
 performUnitOfWork调用的核心函数是beginWork，beginWork会遍历当前workInProgress的所有子集fiber完成单元任务的处理
 
+
+current.alternate和updateQueue要同步
+因为每次执行setState会创建新的更新，把更新挂到对应的fiber上
+这个fiber在奇数次更新的时候存在fiber上，偶数次更新存在current.alternate上
+每次吵架或者复用workOInProgress是从current.alternate上拿
+复用的ternate上，updatequeue不一定有新的更新
 
 ### 同步和异步
 同步：前一个任务没有完成，后面任务就等着
@@ -1196,6 +1248,10 @@ componentDidMount() {
 }
 
 ### setState同步还是异步
+如果是正常情况下，没有使用ConCurrent组件下是同步的。调用setState只是单纯的将新的state放到updateQueue链表里面，还没有进行更新，你拿不到更新后的数据，等点击事件结束后会触发内部的回调
+正常绑定事件你点击的时候就会触发，但是react中的合成事件会先去做别的事情再来执行回调函数，这个时候才是真正的更新state以及重新渲染。
+当使用了Concurrent组件的时候才是真正异步，但同样无法立即获取新的状态，并且在执行渲染（生成fiber阶段）和更新时候是用来真正异步方式
+
 异步更新：
 组件的生命周期，react的合成事件里面是异步的
 this.state = {name: 'a' }
@@ -1215,6 +1271,7 @@ console.log(this.state.name) // 'a' 看出来是异步的，不能在setState之
 定时器里面，定时器是异步的，将setSatte放在定时器执行是同步的
 原生的事件监听：在componentDidMount里面，通过document获取dom，监听按钮点击，将setSatte放在里面是同步的
 react源码里面做了一个判断 
+
 
 ### setSatte数据的合并
 this.setSate({
@@ -1317,20 +1374,10 @@ touch，非阻塞click，keypress，定时器，开始帧
 apache中.htaccess文件
 
 
-### 实现render
-### 实现Copmonent
-### createElement，cloneElement
-### 实现虚拟DOM
-### 实现类组件，函数组件，原生组件和Fragment的渲染
-### 实现diff算法
-### 实现fiber架构
+
 ### hooks核心实现
 ### context原理
 ### setState，forceUpdate，
-### react渲染和更新过程
-### 自定义hooks，useState，useEffects，useCallback，useMemo
-### react路由实现，手写完整的路由
-
 ###  安装不同划分方式划分组件
 按照定义方式：函数组件，类组件
 按照内部是否有状态维护：有、无状态组件
