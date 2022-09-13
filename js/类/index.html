@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  <script>
+    class Animal {
+      constructor() {
+        this.name = '哈哈'
+      }
+      getName () {
+        console.log('实例成员getName')
+      }
+      static staticGetName() {
+        console.log('静态成员staticGetName')
+      }
+    }
+    Animal.prototype.getAge = function() {
+      console.log('类原型的方法getAge')
+    }
+    Animal.getSelf = function() {
+      console.log('类身上的方法getSelf')
+    }
+    const animal = new Animal()
+    // console.log(animal.getSelf()) // 在外部定义在类身上的方法不能被实例访问
+    console.log(animal.hasOwnProperty('getName')) // 定义在constructor里的是实例自有属性，定义在类块的是类原型属性
+
+     class Dog extends Animal {
+      constructor () {
+        super()
+      }
+     }
+     const dog = new Dog()
+
+  </script>
+</body>
+</html>

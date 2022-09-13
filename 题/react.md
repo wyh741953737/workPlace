@@ -1,24 +1,17 @@
 ### 手写实现requireJS模块实现
 ### react和vue的介绍以及异同
-
 ### react的难点在哪里
 ### 如何理解react生态
 react可以说是目前为止最热门，生态最完善，应用范围最广的前端框架。react结合它的整个生态，它可以横跨web端，移动端，服务器端，乃至VR领域。
-
 一、react生态之——web端
-react本身是面向web端的，它很轻便灵活，由于只是MVC架构中视图层。所以要配合生态体系中的其他框架或模块来使用。
+react本身是面向web端的，轻便灵活，由于只是MVC架构中视图层。所以要配合生态体系中的其他框架或模块来使用。
 
 1，路由
-react的路由：主要react-router。现已v4.1。推荐react-router-redux和react-router搭配，可保持路由器与应用程序状态同步。
+react的路由：主要react-router。现已v4.1。可保持路由器与应用程序状态同步。
 
 2，状态管理器
-react只是UI层，对于如何管理应用的状态，facebook提出了flux架构，而基于这一架构，react生态陆续出现了redux、react-redux 、refluxjs、mobx、等一系列状态管理框架。其中redux、mobx是最受欢迎的。
-Mobx 适合做些简单的应用，适合小的团队使用。Mobx优点：响应状态的变化。
-redux适合复杂的应用，大团队，需求变化多。它的优点是响应动作和事件。
-redux不仅应用于react，也可以应用于angular，vue等框架，只是redux和react配合使用最为契合。
-
-另外国内蚂蚁金服前端团队基于redux, react-router打造了另一个前端框架——dva。
-dva简单来讲是对redux方案的集成与拓展，处理了包括项目构建，异步处理、统一请求、统一错误处理等一系列诸多问题。
+react只是UI层，对于如何管理应用的状态，react生态出现了redux、react-redux等一系列状态管理框架。
+dva是对redux方案的集成与拓展，处理了包括项目构建，异步处理、统一请求、统一错误处理等一系列诸多问题。
 如果你选择redux方案，那么建议直接使用dva。
 
 3，UI库
@@ -27,49 +20,27 @@ dva简单来讲是对redux方案的集成与拓展，处理了包括项目构建
 
 4, 一些工具
 immutable-js是facebook推出的完全独立的一个js库，侧重函数式编程中不可变数据结构，使用Immutable可使你的react应用性能上会有很大的提升。
-
-css-modules ——css模块化解决方案
-css-modules不是为react而生的，它是css模块化的一种解决方案，但它和react配合使用很好
-
+css-modules ——css模块化解决方案 不是为react而生的，它是css模块化的一种解决方案，但它和react配合使用很好
 React Devtools是fb推出调试工具。提高开发效率。
-
-无论是react，redux，还是Immutable等都强调函数式编程。
-整个react体系，都在强调js，甚至连css(css-modules)、html(jsx)都融入了js处理
-
 TypeScript
 ant design就是使用TypeScript来开发的。
 
 5，react项目构建
-前端构建工具有很多种，比如最为流行的webpack、百度开源的fis3、以及 gulp。而开发react应用，推荐使用强大的webpack做项目构建。这也是官方的推荐。
-
+比如最为流行的webpack gulp。而开发react应用，推荐使用强大的webpack做项目构建
 二、react生态之——移动端
-react-native是目前最优秀的非原生开发移动框架，一处开发，多端使用。同时具有出色的性能，支持热更新等超强的优势
-而最近facebook推出React Fiber 架构,使用Fiber对react核心算法进行重写，届时RN的性能将会再次直线式的上升，向原生步步紧逼。
-开发RN应用所用的技术栈与web端大致相同，同样需要结合redux,react-router, dva, mobx，antd-mobile等周边生态来使用。
-
+react-native是目前最优秀的非原生开发移动框架，一处开发，多端使用,使用Fiber对react核心算法进行重写，届时RN的性能将会上升，向原生紧逼。
 三，react生态之——服务器端
 react服务器端渲染最出色的：next.js。这是一个基于react可实现服务器和浏览器都能渲染的框架。
 
 ### 如何根据不同应用场景，选择技术栈方案。
-
 1，开发后台应用
-
-react+react-router+mobx+webpack+bfd-ui/ant design （三星半）
-react+react-router+redux+webpack+bfd-ui （三星）
 react+react-router+redux+webpack+ant design （四星）
-react+dva+bfd-ui （四星半）
 react+dva+ant design （五星）
 2，开发前台web应用
-
 react+dva+bfd-ui/ant design （四星）
 react+dva+material-ui/react-toolbox （四星半）
 
-
 ### 实现一个简单的createStore
--  分析：生成一个新的store，
-- store里面有dispatch， getState， subscribe
-- dispatch里面是一个对象{ type: ADD, payload: ''}
-- subscribe(listener)
 const createStore = (reducer) => {
     let state;
     let listeners = [];
@@ -103,13 +74,10 @@ const combineReducers = (reducers)  => {
     }, {})
   }
 }
-
 const reducer = combineReducers({
   a: doSomethingFunc,
   b: dosomethingFunc
 });
-
-
 
 ### 实现applyMiddleWares
 - 中间件作用：将所有中间件组成一个数组，一次执行
@@ -129,14 +97,12 @@ function applyMiddleware(...middleware) {
     }
   }
 }
-
 applymiddleware(thunk, promise, logger)(createStore)(addReducer,12)
-
 中间件被放进chain数组中，然后嵌套执行
 ### SPA
-单页应用，所以活动局限于一个页面，仅初始化时候加载所有文件，加载完SPA不会因为用户操作进行页面的重载和跳转，利用js变化html内容。通过react-router实现不同组件在同一页面切换
+单页应用，一个页面，仅初始化时候加载所有文件，加载完不因用户操作重载和跳转，利用js变化html内容。通过react-router实现不同组件在同一页面切换
 优点：
-1）解决了多爷们访问速度慢，提高页面访问速度
+1）解决了多页面访问速度慢，提高页面访问速度
 2）不刷新页面，通过ajax异步获取，页面显示流畅
 3）良好的前后端分离，减轻服务器压力，服务器只要出数据，不管展示逻辑和页面合成
 4）共用一套代码，可以同时应用于电脑，收集，平板
@@ -147,44 +113,75 @@ applymiddleware(thunk, promise, logger)(createStore)(addReducer,12)
 
 SPA在前后端分离基础上加了前端路由。
 
-
 ### shouldComponentUpdate是干嘛的？性能优化哪个生命周期
 性能优化，对比props和state，没有发生改变返回false，不重写渲染组件
 
 ### React特点
 虚拟dom，可以用服务端渲染，遵循单项数据流或者数据绑定
-
 ### jsx
 是js+xml是一个语法糖，javascript  XML，此文件使应用非常可靠并能提高性能
 
-### 虚拟DOM和真实dom
-
+### 虚拟DOM和真实dom,为什么虚拟DOm提高性能
 虚拟DOM: 更新快，无法直接操作dom，元素更新则更新jsx，dom操作简单，很少消耗内存
-真实DOM：更新慢，科直接操作DOM，元素更新直接创建新的DOM，DOM操作代价大，消耗内存多
+真实DOM：更新慢，可直接操作DOM，元素更新直接创建新的DOM，DOM操作代价大，消耗内存多
 
 虚拟DOM是一个轻量级js对象，最初只是真实dom的副本，更多的是一种模式
 虚拟dom工作步骤：
 1）底层数据变，整个ui将在虚拟dom中重新渲染
 2）计算之前dom和新dom直接差异
 3）只用实际更改内容更新真实dom
-
-### react中，一切皆组件
-组件是react应用ui的构建块，这些组件将整个ui分成更小的独立并可重用的部分，每个组件之间彼此独立，而不影响ui的其余部分
 ###  render的目的
-
-###  为什么虚拟DOm提高性能
 ###  React diff
 ### React中refs作用，使用的场景
 是react引用的简写，其实就是用它可以访问到dom元素一样
 使用：选择文本或者媒体播放时，或者与第三方库集成
-### 何为高阶组件，高阶组件作用
-HOC：复用组件逻辑，参数为组件内，返回值也是组件
-HOC将组件转化为另一个组件
-HOC常见的有Redux的connect（返回高阶组件的高阶函数）
-HOC不会修改传入的组件，也不会使用继承来赋值其行为，HOC通过将组件包装在容器中来生成新的组件，HOC是纯函数，没有副作用
+
+
+### 高阶函数和高阶函数意义
+js中比较常见的filter，map，reduce都是高阶函数
+
+更优雅，
+高阶组件属于函数式编程思想，对于被包裹的组件时不会感知到高阶组件的存在，而高阶组件返回的组件会在原来的组件之上具有功能增强的效果。是一种设计模式：装饰器模式
+而Mixin这种混入的模式，会给组件不断增加新的方法和属性，组件本身不仅可以感知，甚至需要做相关的处理(例如命名冲突、状态维护)，一旦混入的模块变多时，整个组件就变的难以维护，也就是为什么如此多的React库都采用高阶组件的方式进行开发。
+
+
+### 高阶组件作用
+实现方式：属性代理，反向继承
+属性代理能够：
+1）操作 props，给被包装组件传props <WrappedComponent {...newPRops}></WrappedComponent>
+2）通过 refs 获取组件实例
+3）抽离 state  
+  高阶组件内state={age:1} setAge(e)=>{this.setState({age: e.target.value})} <WrappedComponent value={this.state.value} handleChange={this.setAge}>
+  将state抽离出来。将被包装组件变成受控组件，受控组件通过prop接受数据和方法。
+4）把 WrappedComponent 与其它 elements 包装在一起
+
+高阶组件可以看做是装饰器模式在react的实现。ES7中添加了一个decorator的属性，使用@符表示，可以更精简的书写
+ 
+> 反向继承，继承WrappedComponent除了一些静态方法，组件的生命周期，state，各种function我们都可以得到
+const iiHoc = WrappedComponent => class extends WrappedComponent {
+    render() {
+      return super.render();
+    }
+}
+- 渲染劫持：就是控制它的render函数
+const elementsTree = super.render();
+
+注意:
+1)高阶组件不会修改子组件，也不拷贝子组件的行为。高阶组件只是通过组合的方式将子组件包装在容器组件中，是一个无副作用的纯函数
+2）如果需要使用被包装组件的静态方法，那么就需要手动复制这些静态方法，因为HOC返回的新组件不包含被包装组件的静态方法。
+3)refs不会传递。 意思就是HOC里指定的ref，并不会传递到子组件，如果你要使用最好写回调函数通过props传下去
+4)不要在render方法内部使用高阶组件。react会去比较 NowElement === OldElement, 来决定要不要替换这个elementTree。
+调用HOC的时候每次都会返回一个新的组件不是一个引用，react以为发生了变化，去更替这个组件会导致之前组件的状态丢失。
+
+缺陷：
+HOC需要在原组件上进行包裹或者嵌套，如果大量使用HOC，将会产生很多嵌套，调试困难
+HOC可以劫持props，在不遵守约定情况下也可能造成冲突(原来传过来name为a，hoc中又传了个name覆盖)
 
 高阶组件应用场景：
-1）在写代码过程中，尽量不破坏原有函数，给某个对象添加方法在他执行前调用，吧这个方法扩展到原型上（AOP面向切片编程，汉堡编程，切开，放我的进去—）扩展原有方法，重写原有方法但是不破坏原有方法
+1：增强props，通过Context进行增强
+2：渲染判断鉴权： 开发中可能遇到:某些页面必须用户登录成功才能进入，没有登录直接跳到登录页面
+3： 生命周期函数劫持
+1）尽量不破坏原有函数，给某个对象添加方法在他执行前调用，把这个方法扩展到原型上（AOP面向切片编程）扩展原有方法，重写原有方法但是不破坏原有方法
 function say(who) { console.log(who+'说' )}
 Function.prototype.before = function(fn) {
   let that =  this;
@@ -197,7 +194,7 @@ Function.prototype.before = function(fn) {
 let newFn = say.before(function(){console.log('hello')})
 newFn('我');
 
-多个异步请求，如何同步获取最终结果？异步并发问题
+### 多个异步请求，如何同步获取最终结果？异步并发问题
 let fs = require('fs');
 let school = {}
 fs.readFile('./name.txt', 'utf-8', function(err, data) {school.name = data})
@@ -211,29 +208,6 @@ function after(times, callback) {
   }
 }
 let cb = after(2, function() {console.log(school)});
-
-
-高阶组件可以看做是装饰器模式在react的实现。ES7中添加了一个decorator的属性，使用@符表示，可以更精简的书写
-> 属性代理
-- 操作props
-- refs获取组件实例
-componentDidMount() {console.log(this.instanceComponent)}
-《WrappedComponent {this.props} ref={instanceComponent => this.instanceComponent = instanceComponent}
-- 抽离state： 通过 { props, 回调函数 } 传递给wrappedComponent组件，通过回调函数获取state
-> 反向继承，继承WrappedComponent除了一些静态方法，组件的生命周期，state，各种function我们都可以得到
-const iiHoc = WrappedComponent => class extends WrappedComponent {
-    render() {
-      return super.render();
-    }
-}
-- 渲染劫持：就是控制它的render函数
-const elementsTree = super.render();
-
-注意:
-1)高阶组件不会修改子组件，也不拷贝子组件的行为。高阶组件只是通过组合的方式将子组件包装在容器组件中，是一个无副作用的纯函数
-2)静态方法要复制,无论PP还是II的方式，WrappedComponent的静态方法都不会复制，如果要用需要我们单独复制。
-3)refs不会传递。 意思就是HOC里指定的ref，并不会传递到子组件，如果你要使用最好写回调函数通过props传下去
-4)不要在render方法内部使用高阶组件。react会去比较 NowElement === OldElement, 来决定要不要替换这个elementTree。如果每次返回的结果都不是一个引用，react以为发生了变化，去更替这个组件会导致之前组件的状态丢失。
 
 ###  什么是纯组件
 ###  为什么建议传递给setState的参数是个callBack而不是一个对象
@@ -698,11 +672,6 @@ action -> dispatcher(调度器)->通知->store修改state--反映到view
 
 
 
-
-
-
-
-
 ### 什么是react路由
 react+react-router可以创建单页应用，可以将组件映射到路由上，将对应的组件渲染到要渲染的地方
 
@@ -999,41 +968,6 @@ url的hash，改变url的hash，页面不整体刷新，h5的history.pushState,�
 ###  react路由和常规路由有何不同
 常规路由： 每个视图对应一个新文件，url更改： http请求被发送到服务器并且接收相应的html页面，用户体验：用户实际在每个视图的不同页面切换
 react路由：只涉及单个HTML页面，url更改：仅更改历史记录属性，用户体验： 用户以为在不同页面间切换
-
-
-### 高阶函数和高阶函数意义
-js中比较常见的filter，map，reduce都是高阶函数
-
-更优雅，
-高阶组件属于函数式编程思想，对于被包裹的组件时不会感知到高阶组件的存在，而高阶组件返回的组件会在原来的组件之上具有功能增强的效果。是一种设计模式：装饰器模式
-而Mixin这种混入的模式，会给组件不断增加新的方法和属性，组件本身不仅可以感知，甚至需要做相关的处理(例如命名冲突、状态维护)，一旦混入的模块变多时，整个组件就变的难以维护，也就是为什么如此多的React库都采用高阶组件的方式进行开发。
-
-
-### 高阶组件作用
-高阶组件实现方式：属性代理，反向继承
-属性代理能够：
-1）更改 props
-2）通过 refs 获取组件实例
-3）抽象 state
-4）把 WrappedComponent 与其它 elements 包装在一起
-
-
-1：增强props，通过Context进行增强
-2：渲染判断鉴权：
-  开发中可能遇到:某些页面必须用户登录成功才能进入，没有登录直接跳到登录页面
-  高阶组件可以做抽取公共部分逻辑
-3： 生命周期函数劫持
-
-时机
-不要在组件的 render 方法中使用HOC，尽量也不要在组件的其他生命周期中使用HOC。因为调用HOC的时候每次都会返回一个新的组件，于是每次render，前一次高阶组件创建的组件都会被卸载(unmount)，然后重新挂载(mount)本次创建的新组件，既影响效率又丢失了组件及其子组件的状态。
-3，静态方法
-如果需要使用被包装组件的静态方法，那么就需要手动复制这些静态方法，因为HOC返回的新组建不包含被包装组件的静态方法。
-
-缺陷：
-HOC需要在原组件上进行包裹或者嵌套，如果大量使用HOC，将会产生很多嵌套，调试困难
-HOC可以劫持props，在不遵守约定情况下也可能造成冲突(原来传过来name为a，hoc中又传了个name覆盖)
-
-
 ### connect
 connect：第一个参数是mapStateToProps（state或者props变都会被调用，在和props合并后计算出新值），第二个：mapDispatchToProps
   connect：Provider组件：在原生应用组件上包裹一层，让原来的应用成为Provider的子组件，Provider接收redux的store作为props，通过context对象传递给子孙组件上的connect
@@ -1101,9 +1035,7 @@ react中html表单处理方式和普通dom不太一样，表单元素通常会�
 </form>
 
 handleSubmit = (e) => {
-
 }
-
 
 ### render函数的返回值
 1）react元素，
@@ -1372,8 +1304,6 @@ touch，非阻塞click，keypress，定时器，开始帧
 ### react在history模式下刷新404了
 就要服务器配置路由重写指向index.html就可以
 apache中.htaccess文件
-
-
 
 ### hooks核心实现
 ### context原理

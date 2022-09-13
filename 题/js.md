@@ -249,12 +249,12 @@ border-image: url 剪裁（clip）位置，重复性
 img的alt属性有助于提高网站的可访问性。
 维护自适应页面中图片宽高比固定比较常用方法是用padding设置，对不同dpr以及不同分辨率/尺寸的屏幕，为了避免资源浪费和等待时间，针对不同屏幕使用合适图片
 对<img>引入的图片，若要适应不同像素密度的屏幕，使用srcset属性来指定多张图片，url后接一个空格，和像素闽都描述符，浏览器根据当前设备的像素名都，选择需要加载的图像，如果srcset属性都不满足条件就加载src属性指定的默认图像
-<img srcset="foo-320w.jpg,
+<img src-set="foo-320w.jpg,
              foo-480w.jpg 1.5x,
              foo-640w.jpg 2x" 
       src="foo640.jpg">
 想针对不同屏幕用不同分辨率版本和尺寸的图片，用srcset和sizes，srcset允许浏览器选择的图像集，以及每个图像大小（用w为单位），sizes定义了一组媒体条件（例如屏幕宽度），指明当某些条件为真时，怎样的图片尺寸才是最佳选择
-<img srcset="foo-320w.jpg,
+<img src-set="foo-320w.jpg,
              foo-480w.jpg 1.5x,
              foo-640w.jpg 2x" 
       sizes="(max-widgth:320px) 280px,
@@ -847,20 +847,16 @@ IOS的safari点击2次会放大（还有滚动），300ms用于判断用户是�
 
 ### 点击穿透
 touchStart事件在某些情况下出现点击穿透现象
-比如：B在A上面，我们在B上注册了一个回调，作用是隐藏B，当我们点击B后，touchStart-touchEnd-click,而click有300ms延迟，当touchStart吧B隐藏后，到了300ms，浏览器触发了click事件，但是B不见了就作用到了A，如果A是一个连接就意外跳转了。
+B在A上面，我们在B上注册了一个回调，作用是隐藏B，当我们点击B后，touchStart-touchEnd-click,而click有300ms延迟，当touchStart把B隐藏后，到了300ms，浏览器触发了click事件，作用到了A，如果A是一个连接就意外跳转了。
 
 fastClick问题：IOs端input框唤起键不灵敏：
 解决： node_modules找到fastClick文件修改focus方法，但是npm之后又会被覆盖
-
-一个按钮点击过程的处理：
-var $test = document.getElementById('test')
-$test.addEventListener('click', function() {})
 
 var targetElement = null
 document.body.addEventListener('touchStart', function() { // 记录当前点击的元素
   targetElement = event.target
 })
-document.addEventListener('touchEnd', function() { // 阻止默认事件，屏蔽之后的click事件，合成cick事件，并添加可追踪属性forwardTouchEvent， 在targetElement上触发click事件，targetElement上绑定的时间立即执行，完成fastClick
+document.addEventListener('touchEnd', function() { // 阻止默认事件，屏蔽之后的click事件，合成cick事件，并添加可追踪属性forwardTouchEvent， 在targetElement上触发click事件，targetElement上绑定的事件立即执行，完成fastClick
   e.preventDefault(); // 屏蔽之后的click时间
   var touch = event.changedTouches[0]
   var clickEvent = document.createEvent('MouseEvent')
@@ -917,6 +913,7 @@ window.onload = function() {
     })
   }
 }
+
 
 ### 移动端IOS和安卓兼容
 1）怎么判断是IOS还是安卓
@@ -1286,11 +1283,8 @@ defer：同步加载js，等渲染完再执行，不阻塞
 Object.getOwnProperties()看得到的长度
 Object.keys().length === 0
 
-###  <script src="xx' 'xxx'/>外部js文件先加载还是onload先执行，为什么
+### script src="xx' 'xxx' 外部js文件先加载还是onload先执行，为什么
 外部js代码先加载，
-### 怎么加事件监听
-onClick, addEventListener
-
 ### 事件传播机制（事件流）
 当子元素事件触发：父执行顺序:先捕获，后冒泡
 父级捕获-》子集冒泡-》子集捕获-》父级冒泡
@@ -1310,15 +1304,6 @@ e.curentTarget
 e.cancelBubble
 
 DOM2明确规范捕获阶段不命中事件目标，但是主流浏览器都会在捕获阶段在事件目标上触发事件，最终事件目标上有2次机会来处理事件
-
-### 数组能够调用的函数有哪些
-push, pop,shift, unshift,splice, slice, find, findIndex, some, every, entries, map,forEach, reduce,filter,sort
-toString/valueOf
-### 如何判断数组类型
-Array.isArray
-
-### 函数中arguments是数组吗？ 类数组转数组的方法
-伪数组，[...arguments], Array.from(arguments), Array.prototype.slica.call(arguments)
 ### PWA，serviceWorker
 支持PWA的网站可以提供脱机工作，推送通知和设备硬件访问等功能
 service worker是浏览器在后台独立于网页运行的脚本，它打开了通向不需要网页或用户交互的功能的大门。 现在，它们已包括如推送通知和后台同步等功能。 将来，Service Worker将会支持如定期同步或地理围栏等其他功能。 本教程讨论的核心功能是拦截和处理网络请求，包括通过程序来管理缓存中的响应。
@@ -1346,13 +1331,41 @@ const a = new Bar('a', 'obj');
 通过new进行构造函数调用，会创建一个新对象，这个新对象会替代bind的对象绑定，作为此函数的this，并且在此函数没有返回对象的情况下返回这个新建的对象。
 
 
-
-
+### 继承的方式
+1：原型链继承: 缺点是无法在实例化的时候传参，父构造函数的方法变成公有的（原型上的方法是不共享的）
+Son.prototype = new Father() 
+2：构造函数继承：支持子构造函数传参， 实例修改父构造函数的属性不会影响其他实例
+   共有方法定义在构造函数中定义，每次实例化都要创建一遍，无法实现函数的复用，浪费内存
+   通过call只是调用了父构造函数的属性和方法，父构造函数的原型方法没有继承过来
+ funcgtion Son() {
+   Father.call(this, args)
+ }
+3：组合继承：通过原型链继承继原型对象的方法，利用构造函数继承实现属性的继承，而且可以传参
+  不足：__proto__里的属性没用，执行了2次构造函数
+  funcgtion Son() {
+   Father.call(this, args)
+ }
+ Son.prototype = new Father()
+4：原型式继承：和原型链继承类似，每次实例化都要创建方法，无法实现函数的复用
+5：寄生继承：和构造函数继承类似，支持子构造函数传参，但是父构造函数的方法实例化几次就被调用几次，浪费内存
+6：寄生组合继承：
+  
 ### 知道 ES6 的 Class 嘛？Static 关键字有了解嘛
 es6的类是构造函数加原型继承的语法糖，
 和普通构造函数的区别：
 1）类必须通过new调用，而普通函数可以直接调用，调用者是this
 类的constructor是类自身方法，普通方法都挂在类原型上，static为类自身添加方法，而不是在函数对象的原型上面
+在类块中定义的所有内容都会定义在类的原型上，添加到this上的所有内容都会存在不同实例上。
+不能在类块上给原型添加基本数据类型或对象作为成员数据
+静态成员用static生命，定义在类本身上
+在类外面给类添加的方法
+constructor和定义在类块里的，实例成员能访问到，加了static的访问不到，constructor，类块里的方法都在类原型上
+定义在constructor里的是实例自有属性，定义在类块的是类原型属性
+
+static get flag() {return 'dog'} 静态属性
+静态方法中的super指向父类，
+### 静态属性怎么继承
+通过extends可以继承静态方法和属性
 
 ### instanceof如何用
 左边是任意值，右边是构造函数 
@@ -1381,8 +1394,6 @@ instanceOf(A,  B) {
 ### Html的语义化
 
 ### Post一个file的时候file放在哪的？
-
-### 静态属性怎么继承
 
 ### 怎么在页面里放置一个很简单的图标，不能用img和background-img？
 

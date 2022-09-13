@@ -49,44 +49,44 @@
         // 共有方法定义在构造函数中定义，每次实例化都要创建一遍，无法实现函数的复用，浪费内存
         // 通过call只是调用了父构造函数的属性和方法，父构造函数的原型方法没有继承过来
 
-        function Father(name) {
-            this.name = name;
-            this.sayName = function() {
-                console.log('原型中',this.name)
-            }
-            this.color = ['红', '绿']
-        }
+        // function Father(name) {
+        //     this.name = name;
+        //     this.sayName = function() {
+        //         console.log('原型中',this.name)
+        //     }
+        //     this.color = ['红', '绿']
+        // }
 
-        Father.prototype.getName = function() {
-            console.log('我是Father原型上的方法');
-        }
-        Father.prototype.hobby = '逛街'
+        // Father.prototype.getName = function() {
+        //     console.log('我是Father原型上的方法');
+        // }
+        // Father.prototype.hobby = '逛街'
 
-        function Son(name) {
-            this.subName = name;
-            Father.call(this, name)
-        } 
+        // function Son(name) {
+        //     this.subName = name;
+        //     Father.call(this, name)
+        // } 
 
-        Son.prototype.getSonFunc = function() {
-            console.log('我是Son原型上的方法')
-        }
-        Son.prototype.subText = '跳舞';
+        // Son.prototype.getSonFunc = function() {
+        //     console.log('我是Son原型上的方法')
+        // }
+        // Son.prototype.subText = '跳舞';
         
-        const son = new Son('eee');
-        const son2 = new Son('aaa');
-        son.sayName = function() { console.log('我变了', this.name)}  // 修改原型sayName，不改变所有实例上的sayName
+        // const son = new Son('eee');
+        // const son2 = new Son('aaa');
+        // son.sayName = function() { console.log('我变了', this.name)}  // 修改原型sayName，不改变所有实例上的sayName
 
-        console.log(son.sayName()) // 我变了
-        console.log(son2.sayName()) // 原型中
+        // console.log(son.sayName()) // 我变了
+        // console.log(son2.sayName()) // 原型中
 
-        son.color.push('紫') // 改变父构造函数的属性，不会改变所有实例上的属性
-        console.log(son.color) // ['红', '绿', '紫']
-        console.log(son2.color) // ['红', '绿']
+        // son.color.push('紫') // 改变父构造函数的属性，不会改变所有实例上的属性
+        // console.log(son.color) // ['红', '绿', '紫']
+        // console.log(son2.color) // ['红', '绿']
 
-        console.log(son.hobby) // undefined 访问不到Father原型上的属性
-        console.log(son.getName) // undefined 访问不到Father原型上的方法
-        console.log(son.getSonFunc()) // '我是Son原型上的方法'
-        console.log(son.subText) // 跳舞
+        // console.log(son.hobby) // undefined 访问不到Father原型上的属性
+        // console.log(son.getName) // undefined 访问不到Father原型上的方法
+        // console.log(son.getSonFunc()) // '我是Son原型上的方法'
+        // console.log(son.subText) // 跳舞
 
 
 
@@ -114,7 +114,7 @@
         // console.log(son1.sayName()) // 支持传参
         // console.log(son1.getName()) // 访问的到父构造函数原型上的方法了
 
-     //   // 原型式继承： 和原型链继承类似，每次实例化都要创建方法，无法实现函数的复用，通过call只是调用构造函数的属性和方法，原型上的方法没有被继承
+     //   // 原型式继承： 和原型链继承类似，每次实例化都要创建方法，无法实现函数的复用
     //     function fun(obj) {
     //         function Son() {};
     //         Son.prototype = obj;
@@ -126,7 +126,6 @@
 
     //    const son = fun(objProto);
     //    console.log(son.name)
-
 
 
         // // 寄生继承: 和构造函数继承类似，支持子构造函数传参
@@ -172,6 +171,37 @@
     //    const son2 = new Son('李四');
     //    console.log(son2.type)
     //    console.log(son1.name)
+
+    // function Inhert(Son, Father) {
+    //     const clone = Object.create(Father.prototype)
+    //     Son.prototype = clone
+    //     clone.constructor = Son
+    // }
+
+    class Person {
+        constructor(name) {
+            this.name = name
+            this.arr = []
+        }
+        getName () {
+            console.log('哈哈哈')
+        }
+        static getAge() {
+            console.log('age')
+        }
+        static classProperty = 1
+    }
+    // const p = new Person('曦曦')
+    // console.log(p.getAge)
+    class P extends Person{
+        constructor(age) {
+            this.age = age
+            this.hobby = []
+        }
+        page() {}
+    }
+    // const p = new P(12)
+    console.log(P.classProperty)
 
     </script>
 </body>
