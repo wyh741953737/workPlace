@@ -139,7 +139,6 @@ IOS：iphone4开始Retina屏
 
 屏幕尺寸、屏幕分辨率 --》 对角线分辨率/屏幕尺寸 ---》屏幕像素密度PPI ---》 dpr=物理像素/设备独立像素dip--》 viewport： scale --》 css像素
 
-
 1:viewport设置理想视口
 <meta name="viewport" content="width=device-width, init-scale=1, maximum-scale=1, minimum-scale=1, user-scale=no">
 
@@ -153,8 +152,8 @@ IOS：iphone4开始Retina屏
   let scale = 0;
   if(!dpr && !scale) {
     const isAndroid = win.navigator.appVersion.match(/android/gi/);
-    const isIphone = win.navigator.appVersipn.match(/[iphone|ipad]/gi);
-    const devicePixelRatio = win.devecePixelRatio;
+    const isIphone = win.navigator.appVersion.match(/[iphone|ipad]/gi);
+    const devicePixelRatio = win.devicePixelRatio;
     if(isIphone) {
       dpr = devicePixelRatio
     } else {
@@ -184,10 +183,10 @@ iphone4以上是2倍屏
 px单位的适配：设置动态缩放视口后，iphone6上，缩放为0.5，即css像素2px最终显示为1px效果，而scale为1的时候1px效果是1px，为达到一致，以px为单位的元素，比如字体其样式要适配不同dpr的版本，在动态设置viewport：scale时，同时在根元素上加data-dpr=[dpr]这种方式还是不够，若dpr为2，2之外的px无法适配到，因此选择rem为单位
 .p {
   font-size: 14px;
-  [data-dpr="2] & {
+  [data-dpr="2"] & {
     font-size: 14px * 2;
   }
-  [data-dpr="3] & {
+  [data-dpr="3"] & {
     font-size: 14px * 3
   }
 }
@@ -197,6 +196,111 @@ px单位的适配：设置动态缩放视口后，iphone6上，缩放为0.5，�
 ### vm/vh:css单位
 css3新增单位，可视区宽高100vw，100vh window.innerHeight/Width
 
+### link和@import引入CSS的区别？
+两者都是外部引用CSS的方式，但是存在一定的区别：
+1）link是xhtml标签，除了加载CSS外，还可以定义RSS等其他事务；@import属于CSS范畴，只能加载CSS。
+2）link引用CSS时，在页面载入时同时加载；@import需要页面网页完全载入以后加载。所以有时候浏览@import加载CSS的页面时开始会没有样式（就是闪烁），网速慢的时候还挺明显
+3）link是xhtml标签，无兼容问题；@import是在CSS2.1提出的，低版本的浏览器不支持。
+4）link支持使用js控制DOM去改变样式；而@import不支持。
 
+### 1像素问题
+  边框为1px的css像素，在普通屏幕下1px，高清屏（dpr为2）下2px，是由于不同移动设备的dpr不同，导致1px的css像素转换成物理像素显示不一样
+  css中涉及1像素的地方任然用px为单位，设置<meta initial-scale="1/dpr">将整个页面缩小为dpr倍，对于页面用rem方案的情况，将页面的跟字体再放大dpr倍，这时候就能在不改变页面其他布局下保持边框css像素为1px
+### transform的scale属性
+允许对元素进行缩放，scaleY()通过设置Y轴的值类定义缩放转换并结合伪元素使用，通过transform-origin:50% 0%修改元素变换的中心点实现
+针对横向边框用scaleY,竖向边框scaleY,一圈的scale(),并且需要注意转移元素变换中心
+.oneBorder:before {
+  transform-origin: 50% 0%;
+}
+@media only screen and (-webkit-min-device-pixel-ratio: 2) { // dpr为2时
+  .oneBorder:before {
+    transform: scaleY(0.5);
+  }
+}
+@media only screen and (-webkit-min-device-pixel-ratio: 3) { // dpr为3时
+  .oneBorder:before {
+    transform: scaleY(0.33);
+  }
+}
 
+### border-image属性
+border-image: url 剪裁（clip）位置，重复性
 
+30% 40% 40% 30%形成九宫格裁剪
+
+重复性：repeat：重复； round 平铺:以完整的单元铺满区域，stretch拉伸默认值
+
+边框将图片分成9部分， border-top-left-image， border-top-image， border-top-right-image
+                  border-left-image, .......,  border-right-image
+                  border-bottom-left-image，border-bottom-image，border-bottom-right-image，
+四个对角不受重复方式影响，该怎样还是怎样
+
+### 背景图片
+对于背景图片，使用image-set根据用户设备的分辨率匹配合适的图像，同时要考虑兼容性问题
+.css {
+  background-image: url(...png); 不支持image-set情况下显示
+  background: -image-set(
+    url(1x.png) 1x,
+    url(2x.png) 2x,
+    url(3x.png) 3x,
+  )
+}
+媒体查询，对于背景图片，用媒体查询自动切换不同分辨率的版本
+.css {
+  background-image: url(...png);
+}
+@media only screen and(min-device-pixel-ratio: 2) {
+  .css {
+    background-image: url(..2x.png);
+  }
+}
+@media only screen and(min-device-pixel-ratio: 3) {
+  .css {
+    background-image: url(..3x.png);
+  }
+}
+### 什么是css盒子模型
+元素的margin、border、padding、content就构成了CSS盒模型。
+CSS盒模型分为IE盒模型（也叫怪异盒模型） 和 W3C盒模型（标准盒模型)。
+现在所有标准的浏览器都遵循的是W3C盒模型，IE6以下版本的浏览器遵循的是IE盒模型。
+IE盒模型：width/height = content + padding + border
+W3C盒模型：width/height = content。
+C3新增box-sizing: content-box | border-box | inherit，默认值为content-box。
+值为content-box，那元素遵循的是W3C盒模型；
+值为border-box，那元素遵循的是IE盒模型；
+值为inherit，该属性的值应该从父元素继承。
+### picture
+picture：为不同视口提供不同图片，使用<picture>标签，是h5定义的一个容器标签，内部用<source>和<image>,浏览器会匹配<source>的type，media，srcset等属性，找到最适合当前布局/视口宽度的图片，这里的<img>标签是浏览器不支持picture元素，或者支持picture但是没有合适的媒体定义时的后备，不能省略
+<picture>
+  <source media="(min-width: 30px)" srcset="cat-vertical.jpg" />
+  <source media="(min-width: 60px)" srcset="cat-verticalmin.jpg" />
+  <img src="cat.jpg" alt="cat" />
+</picture>
+### 对图片的处理
+加载网页时，60%以上流量来自加载图片，指定图像宽度时使用相对单位防止意外溢出视口，比如width:50%,因为css允许内容溢出容器，所以：max-width:100%来保障图像以及其他内容不会溢出，
+维护自适应页面中图片宽高比固定比较常用方法是用padding设置，对不同dpr以及不同分辨率/尺寸的屏幕，
+对<img>引入的图片，若要适应不同像素密度的屏幕，使用srcset属性来指定多张图片，url后接一个空格，和像素描述符，浏览器根据当前设备的像素名都，选择需要加载的图像，如果srcset属性都不满足条件就加载src属性指定的默认图像
+<img src-set="foo-320w.jpg,
+             foo-480w.jpg 1.5x,
+             foo-640w.jpg 2x" 
+      src="foo640.jpg">
+想针对不同屏幕用不同分辨率版本和尺寸的图片，用srcset和sizes，srcset允许浏览器选择的图像集，以及每个图像大小（用w为单位），sizes定义了一组媒体条件（例如屏幕宽度），指明当某些条件为真时，怎样的图片尺寸才是最佳选择
+<img src-set="foo-320w.jpg,
+             foo-480w.jpg 1.5x,
+             foo-640w.jpg 2x" 
+      sizes="(max-widgth:320px) 280px,
+             (max-width: 480px) 440px,
+             800px"
+      src="foo640.jpg">
+浏览器查询过程：查看设备宽度，检测sizes列表中哪个媒体条件为真，查看给予该媒体查询的槽大小，加载srcset列表中引用的最接近所选的槽大小的图像
+
+异步加载：<img>引入的图片，使用js自带的异步加载图片，根据不同dpr加载不同分辨率图片
+<img id="img" data-src1x="xx@1x.jpg" data-src2x="xx@2x.jpg" data-src3x="xx@3x.jpg"/>
+let dpr = window.devicePixelratio
+if(dpr > 3) {dpr = 3}
+let imgSrc = $('#img').data('src'+dpr+'x');
+let img = new Image();
+img.src=imgSrc;
+img.onload = function(imgObj) {
+  $('#img').remove().prepend(imgObj) // 替换img对象
+}

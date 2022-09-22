@@ -108,6 +108,9 @@ SPDY：http+tcp+ip+spdy+TLS
 2）支持服务器推送
 3）spdy压缩了http的header，舍去了不必要的头部信息
 4）强制使用SSL，对用户来说网页速度变快，不担心数据被截取
+类似websocket但是已经不再维护，由http2替代
+
+webRTC用于流数据，直播流
 
 ### http和https的区别
 http： 通过明文传输不安全,
@@ -199,11 +202,14 @@ http1.1新增5种请求方式： put，delete，connect，trace，options
 
 post请求变成options请求导致404解决办法：axios.default.header['Content-Type']='application/x-www-urlencoded;charset=utf-8'
 
-Preflighted Requests是CORS中一种透明服务器验证机制。预检请求首先需要向另外一个域名的资源发送一个 OPTIONS 请求头，其目的就是为了判断实际发送的请求是否是安全的。
-下面的2种情况需要进行预检：
-  简单请求，比如使用Content-Type 为 application/xml 或 text/xml 的 POST 请求；
-  设置自定义头，比如 X-JSON、X-MENGXIANHUI 等。
-
+预检请求是CORS中一种透明服务器验证机制。预检请求首先需要向另外一个域名资源发送一个 OPTIONS 请求头，目的就是为了判断实际发送的请求是否是安全的。
+简单请求不会发起预检请求：
+1：请求方式为get，post，head中的一种
+2：请求头类型是Accepted，Accept-language，content-language，content-type多了就不是简单请求了
+3：content-type为application/x-www-form-urlencoded, text/plain, multipart/form-data,
+4: 请求中任意XMLHttpRequestUpload对象均没有注册任何事件监听器
+5：请求中没有使用readableStream对象
+cors本质是使用各种头信息对浏览器和服务器之间进行身份认证实现跨域资源共享
 ### http身份认证有哪些方法？
 1）basic认证：http1.0，客户端请求，服务端返回401，用户携带经过base64编码的用户名密码到首部字段（Authorization）到服务端，成功200，失败401.base64不是加密不安全
 2）digest认证：http1.1，弥补basic认证，服务端返回401和临时质询码，不发送明文，客户端响应包含经过h5加密的digest字段，但是防止不了用户伪装
@@ -301,14 +307,6 @@ status，location,etag, date, set-cookie, length, last-modified,
 501：服务器不支持请求的功能，无法完成请求
 502：bad getWay作为网关或者代理的服务器尝试请求，收到了一个无效的响应
 
-
-
-
-
-
-
-
-
 1：对内容解析，判断url还是内容
 2：如果是url就查找本地缓存，expires（过期时间）和cache-control控制（no-store,max-age,no-cache），都没有就会发生请求进行协商缓存
 在发生请求协商之前，会进行dns解析，具体：浏览器-》操作系统-》路由-》本地运行商-》根域名-》 本地-根域名（递归），根域名之间是迭代
@@ -353,18 +351,6 @@ CSRF攻击防御 1：增加一些确认操作，敏感操作时输入密码二�
 对称加密：加解密都用一个密钥，比如指纹解锁，登录要用同一个人的密码，常见对称加密算法：DES，3EDS，base64是对称加密，公钥就是base字符码表
 非对称加密：主要是解决对称加密密钥传输问题，是一对公钥和私钥，github，ssh-keygen指定加密算法为rsa
 hash和md5不算加密算法，是不可逆的，加密应该是可以还原的，非对称加密也不是绝对安全，存在交换公钥时公钥被篡改的问题。
-### http1.0和http2.0有哪些区别
-http1.0：一次性连接 http1.1：保持连接，性能提升 http2.0：强制https，自带双向通信，多路复用
-
-http2.0核心：二进制分针。 将所有的传输信息分割成更小的消息和帧，并且采用二进制形式编码。 3）http2.0首部压缩 4）http2.0多路复用： 继承SPDY协议，所有通信都在一个TCP连接中完成。TCP性能：关键在于低延迟，大部分TCP连接很短，突发性。TCP只在长时间传输连接，传输大文件的时候效率才最高。
-
-HTTP2.0的问题：还是底层支称的TCP造成的， 1：队头阻塞（当连接中出现丢包，2.0不如1，丢包之后整个tcp都要等待重传，导致后面数据被阻塞） 2：建立连接的握手延迟：不管是1.0还是1.1，https都是tcp进行传输，https，2.0还要使用TLS进行安全传输，这样出现两个握手延迟。TLS完全握手至少需要RTT两回才能建立，对于短连接来说，这个延迟影响很大无法消除。 QUIC是TCP遗留问题的优化。 针对延迟问题：0 RTT ：QUIC利用类似TCP快速打开的技术，缓存当前会话上下文，下次恢复会话时候只要将会话缓存传到服务器确认，确认通过就可以进行传输。 传统TCP（2RTT） TCP+TLS：4RTT QUIC：2RTT
-
-tcp/udp区别
-tcp面向连接，udp无连接 tcp提供可靠服务，udp尽最大努力交付 tcp传输效率低，udp传输效率高，适用对于高速传输和实时性传输有较高的通信或广播通信tcp点到点，udp一对一，一对多，多对一
-### Http结构
-请求头： 1: method, url, 协议，content-type， host：请求资源所在服务器， cookie，connection：keep-alive/close, cache-control，Date，If-none-Match, If-modifed-since， user-egent ，Accept，Accept-laguage ，Accept-chartset，expires
-响应头: 1： status，协议版本，cache-control，set-cookie，content-Type ，Date ,Etag， content-length, age ,location：领客户端重定向的URI ，last-modified
 ### CDN
 在浏览器本地缓存失效后，浏览器会像CDN边缘节点发起请求，类似浏览器缓存，通过http响应头中的cache-control设置CDN边缘节点数据缓存时间。 当浏览器向CDN节点请求数据时，会判断缓存是否过期，若过期，CDN会发出回源请求，拉取最新数据，更新本地缓存，优势： 1：访问延时大大降低,起到分流作用，减轻了源服务器的负载。
 浏览器缓存的区别
