@@ -1,9 +1,7 @@
 ### 为什么说Vue是渐进式js框架
-自由组合功能,vue允许你将页面割成可复用的组件，每个组件有自己的html，css,js。
-用自己想用或者能用的功能特性。VUE不强求你一次性接受并使用它的全部功能特性。
+自由组合功能,用自己想用或者能用的功能特性。
 ### 库和框架的区别
-react是一个库，库是用户主动调用库里方法
-vue是一个框架，框架的特点是我们只能被别人调用
+react是一个库，库是用户主动调用库里方法,vue是一个框架，框架的特点是我们只能被别人调用
 ### vue子组件和父组件执行顺序
 加载渲染:beforeCreate(父)=>created（父）=>beforeMount（父）=> beforeCreate(子)=>created(子)=>beforeMount(子)=>mounted(子)=>mounted(父)
 更新：beforeUpdate(父)=>beforeUpdate(子)=>updated(子)=>updated(父)
@@ -17,10 +15,10 @@ vue是一个框架，框架的特点是我们只能被别人调用
 ### 如何获取data中某个数据的初始状态？
 this.$options.data().num
 ### 动态给vue的data添加新属性为什么没有响应式？
-data里的属性全都在initState函数（created之前）里通过Object.defineProperty实现了响应式，后来加的要通过vue.set实现响应式，或者Object.assign，或者$foreUpdate重新渲染仅影响实例本身和插入插槽内容的子组件，而不是所有组件
+data里的属性全都在initState函数（created之前）里通过Object.defineProperty实现了响应式，后来加的要通过vue.set实现响应式，或Object.assign，或者$foreUpdate重新渲染仅影响实例本身和插入插槽内容的子组件，而不是所有组件
 ### Vue.observable
 ### vue2以及vue3响应式数据的理解
-响应式数据的核心是数据变化能知道，对象在vue2采用defineProperty将数据定义成响应式
+响应式数据的核心是数据变化能知道，vue2采用defineProperty将数据定义成响应式
 拦截所有getter和setter，缺陷是要递归。不存在的属性无法被监控到。
 vue3采用proxy直接可以对对象拦截，不需要重写set和get方法，性能高不需要递归。
 对数组没有采用defineProperty，数组长但是用户不会操作索引更改数据。
@@ -29,7 +27,6 @@ vue2中减少层级数据嵌套，不要太深，如果不需要响应式的数�
 vue2中没有使用defineProperty检测数组（性能差）。
 通过原型链+函数劫持重写数组的7个方法，缺陷是不能检测到索引更改数组的变化。
 检测到数组变化，也会去observeArray，遍历数组每一项，进行observe，性能也不好。
-shift，unShift，pop,push,slice,revere,sort
 ### vue中如何进行依赖收集
 每个属性和对象都有自己的dep属性，存放它所收集的依赖watcher，当属性变化，会通知自己的watcher去更新。
 每个组件渲染过程都会创建一个渲染watcher（watcher有3种：渲染watcher，计算属性watcher，用户watcher）一个属性可能会有多个watcher，反过来，一个watcher有多个dep。
@@ -39,27 +36,35 @@ shift，unShift，pop,push,slice,revere,sort
 ### 如何理解vue中的模板编译原理
 核心：如何将template转化成render函数
 1：将template模板转换成ast
-2: 对ast语法树进行优化，标记静态节点，diff来做优化的静态节点跳过diff操作
+2：对ast语法树进行优化，标记静态节点，diff来做优化的静态节点跳过diff操作
 3：代码生成，拼接render函数字符串+new Function + with
-
+4：用ast得到的js对象拼装成render和staticRenderFns函数，render和staticRenderFns函数调用后生成vnode节点
+generate(ast, options) {
+  const code = 将抽象语法树转化为_c('div', {props: '', domProps: '', on: '{}''})
+  return {
+    render: ('with(this){return'+code+'}'),
+    staticRenderFns: state.staticRenderFns
+  }
+}
+template='<div v-if="show">你好</div>'
+compileToFunctions内部调用compile,compile会调用baseCompiled(template, options)得到{ast:{},render: 'with(this){return'+code+'}',staticRenderFns}
+baseCompiled内部调用parse将template转化成ast，然后优化标记静态节点，之后调用generate(ast, options)得到render和staticRenderFns函数，和ast合并后返回
+### render和template的区别
+template是html的渲染方式但是template最终还是要通过render的方式再次编译
+render里有个h函数，将单文件组件进行虚拟dom的创建，然后再通过render进行解析
+render性能比template好，优先级高于template
 ### vue3模板编译做了哪些优化？
 patchFlag, blockTree, 事件缓存，节点缓存
 
 ### vue生命周期钩子是如何实现的？
-生命周期钩子在内部会被vue维护成一个数组，vue内部有一个方法mergeOptions,
-将其他属性和全局生命周期合并最终转换成数组，当执行到具体流程时会执行钩子（发布订阅）callHook实现
-callHook(vm, 'beforeCreate')
-### 一般在哪发请求
-在哪都可以，主要看你做什么事，created和mounted区别不大，但如果是同步操作，created中是无法获取dom的
-在服务端渲染时，我们无法使用浏览器的钩子，服务端渲染是把结果渲染成一个字符长返回给浏览器，渲染过程是在服务端，会把功能写在created里。
-vue3发请求可以全在mounted。
+vue有个方法mergeOptions,将其他属性和生命周期合并转成数组，执行到具体流程时会执行钩子（发布订阅）callHook(vm, 'beforeCreate')
 ### 动态指令设置以及动态传参
 <child @[someType]="handlerSomeEvent()" :[someProps]="100" />
 someType: type ? 'click' : 'dbClick'
 
 ### vue组件之间参数传递
 1：props，$emit父子之间
-2: v-model 单选框，复选框等输入控件，父通过v-model传给子，会自动传一个名为value的prop属性，子通过this.$emit('input', val)就能更改父的v-model的值
+2: v-model 单选框，复选框等输入控件，父v-model传给子，会自动传一个名为value的prop属性，子通过this.$emit('input', val)就能更改父的v-model的值
 3：v-solt父子组件单向通信，在实现可复用组件，向组件传入dom节点，html时刻优先考虑v-solt
 4: refs、parent、children。refs可以获取子组件实例或者当前元素。this.$parent获取当前组件的父组件实例，this.$children获取当前组件的子组件实例。
 5: vuex,跨层级，项目复杂的情况下使用
@@ -113,8 +118,6 @@ computed中没有deep：true，因computed中值用于{{xxx}}模板会调用JSON
 过滤器，全局和局部，当命名冲突时以局部过滤器权重高，{{msg | filterMsg}} Vue.filter('过滤器名', (val) => {}) filters: { 过滤器名: (val){]}}
 ### props和data谁的优先级更高
 在源码initState中，判断顺序依次是：props，methods，data，computed，watch
-### vue中key的原理和必要性
-key是每个vnode的唯一id，是diff的一种策略，根据key更准确更快的找到对应的vnode节点。
 ### 共享组件不会重新渲染问题
 我们有时候开发中会把多个路由解析为同一个Vue组件。Vue默认情况下共享组件将不会重新渲染，
 如果你尝试在使用相同组件的路由之间进行切换，则不会发生任何变化，此时我们需要传递key来区分，达到刷新的目的
@@ -136,15 +139,13 @@ v-solt缩写：# 只有默认插槽时可以在标签上使用
 默认插槽名为default可以省略default直接写v-solt
 
 ### misxins
-vue复用组件的一种方式，原理类似“对象的继承”，当组件初始化时会调用mergeOptions进行合并，采用策略模式针对不同属性进行合并
+vue复用组件的一种方式，原理类似“对象的继承”，mixins更像是对于组件的拓展。当组件初始化时会调用mergeOptions进行合并，采用策略模式针对不同属性进行合并
 如果混入的数据和本身组件中数据有冲突，就会采用就近原则，以组件的为主。
 mixin中有很多缺陷：命名冲突问题，依赖问题，数据来源问题。
 
 组件间操作不会污染，组件的methods和components会覆盖混入对象的方法。created和mounted等会被合并调用，
 混合对象的钩子函数在组件里的钩子函数之前调用。
 在mixins里包含异步请求函数的时候，通过直接调用异步函数获取返回数据
-mixins更像是对于组件的拓展。
-
 vue3采用组合式API更加方便
 
 Vue.mixin = function(mixin) {
@@ -153,16 +154,14 @@ Vue.mixin = function(mixin) {
 }
 mergeOptions合并属性，生命周期，mergeHook生命周期合并成数组执行的时候依次执行
 ### 说下你所理解的mvc与mvvc
-MVC: 比较早期的mvc是针对后端来说的。用户可以操作view层，也可以操作control层，逻辑，数据，视图分离。 可以在view里调用model取数据，
+MVC: 比较早期的mvc是针对后端来说的。用户可以操作view层，control层，逻辑，数据，视图分离。 可以在view里调用model取数据，
 也可以在model主动触发view修改视图，control即可以修改model也可以更新view 
 缺点：复杂项目中会出现混乱。如视图改变，不知从哪触发（model或用户或control）
-mvc并未具体指明各个部分应该承担具体什么职责，相互间如何交互,大量逻辑耦合再control层。
+mvc并未具体指明各个部分应该承担具体什么职责，相互间如何交互,大量逻辑耦合在control层。
 
-从大层面可将mvc分为服务端mvc框架和纯客户端mvc框架 服务端：spring mvc 客户端mvc：mvp，mvvm
-MVP：模型-视图-presenter（主持人），view和model不能直接交互，只能通过presenter。解决了mvc交互混乱问题。明确了各个组件的职责， 
-MVVM:基本和mvp一致。更注重数据驱动视图，新增双向数据绑定。 model职责不变，view的职责被分成2部分：展示数据和用户操作，
-另一部分：view中动态的部分，比如输入框内容，按钮的enable，这部分职责转移到了VM中，所以view和model不直接交互.，
-而是和VM绑定，VM除了要响应用户操作外还要维护视图状态
+从大层面可将mvc分为服务端mvc和纯客户端mvc 客户端mvc：mvp，mvvm
+MVP：模型-视图-presenter（主持人），view和model不能直接交互，只能通过presenter。解决了mvc交互混乱问题 
+MVVM:基本和mvp一致。更注重数据驱动视图，新增双向数据绑定。view和model不直接交互.而是和VM绑定，VM除了要响应用户操作外还要维护视图状态
 
 mvp中presenter也要维持视图状态的，但presenter将状态设置到视图上，自己不持有这些状态，
 mvvm中，VM是视图状态的来源，视图只是反映VM状态
@@ -197,13 +196,12 @@ doSomething(){}
 @hook还可以监听其他生命周期
 
 ### 为什么new Vue中data是对象，组件中data必须是函数
-组件是复用的，js里对象是引用关系，如果组件中data是对象，作用域没有隔离，子组件的data会相互影响，而data是函数，每个实例维护对象的独立拷贝。
-new vue中的实例是不会被复用的不存在引用对象的问题
+组件要复用，若组件data是对象，作用域未隔离，子组件的data相互影响，data是函数，每个实例维护的对象独立。new vue中的实例是不会被复用的不存在引用对象的问题
 ### v-if和v-for
-在vue2.x中，v-for的优先级会比v-if的优先高，如果写在同一个标签上，会每次循环都判断，如果希望边遍历边判断，可以先做成计算属性再在页面上使用，或者外面套一个template标签。
+在vue2.x中，v-for的优先级会比v-if的优先高，如果写在同一个标签上，会每次循环都判断，如果希望边遍历边判断，可以先做成计算属性再在页面上使用
 但在vue3.x中这一判断优先级被换了过来
 ### v-if、v-model、v-for实现原理？普通组件上的v-model指令，组件上的v-model指令
-v-for:原理是拼接一个循环函数，内部用来一个方法
+v-for:原理是拼接一个循环函数(拿到el上的iterator）
 v-if:自动被转译成三元表达式，
 v-model:在组件中就是value+input的语法糖，如果放到表单元素上v-model是有一些差异的，会被解析成一个指令，默认给input事件拼接一个处理中文输入法的问题在运行时要调用指令。
 指令处理的时候还会处理修饰符
@@ -212,7 +210,7 @@ v-model本质上是语法糖，v-model在内部为不同的输入使用不同属
 原理就是双向数据绑定，通过Object.defineProperty对数据进行劫持，通过监听不同属性对应的事件作出相应的处理。
 
 text和textarea元素使用value属性，input事件
-checbox和radio使用checked属性和change事件
+checkbox和radio使用checked属性和change事件
 select使用value和change事件
 
 <input id="name"/>显示值：<p id="text"></p>
@@ -224,18 +222,12 @@ Object.defineProperty(obj, 'name', {
 name.addEventListener('keyup', () => { obj.name=e.target.value})
 
 ### 虚拟dom在vue中做了什么？
-虚拟dom：vue2.x才有的，本质是js对象，跨平台。
-vue的渲染过程：将真实dom转化为虚拟dom（js对象），2：更新的时候对比
 ### 虚拟dom是如何提升vue的渲染效率的？
-局部更新（节点数据）
-将直接操作dom的地方拿到2个js对象中去做比较
-dom算法是O(n)级别的，内部是深度遍历的方式遍历节点
-节点判断是否是同一个元素，如果是同一个元素则比较属性，比孩子，不是同一元素直接删除换成新的
+局部更新（节点数据），将直接操作dom的地方拿到2个js对象中去做比较
 vue2采用双指针对一些场景做了优化策略（静态节点跳过diff算法）。
 头头，尾尾，尾头，头尾进行优化，最后乱序比较就是根据老节点创造一个映射表，用心的去里面找能复用的节点。
-vue3优化移动节点的时候采用了最长递增子序列来实现，贪心+二分查找+前驱节点实现O(nlogn)
-vue3还有一个blockTree概念，如果是通过模板编译的会把dymanicChildren组成数组直接数组比对，性能更好，如果不能
-使用这种方式才采用全量对比。
+vue3优化移动节点的时候采用了最长递增子序列来实现，贪心+二分查找+前驱节点实现O(NlogN)
+vue3还有一个blockTree概念，如果是通过模板编译的会把dynamicChildren组成数组直接数组比对，性能更好，如果不能使用这种方式才采用全量对比。
 
 ### 组件化
 组件-》ast，识别的时候会根据组件创建一个虚拟节点-》转化成真实节点-》插入到页面
@@ -321,45 +313,28 @@ v-html会替换标签内的子元素
 ### vue-router2种模式区别
 ### Vue中性能优化有哪些？
 - 代码优化
-1：不要所有数据都放在data中，data中的数据会增加getter和setter会收集对应的watcher
-2：vue在v-for时给每项元素绑定事件需要用事件代理
+1：不要所有数据都放在data中
 3：SPA采用keep-alive缓存组件
-4：拆分组件（提高复用性，增加代码可维护性，减少不必要的渲染
 5：v-if为false时内部不会执行，具有阻断功能，很多情况下使用v-if替代v-show
-6：key保证唯一性（vue会采用复用策略）
-7：Object.freeze冻结数据
-8：合理使用路由懒加载，异步组件
-9：数据持久化问题（防抖，节流）
+6：key保证唯一性（vue会采用复用策略）7：Object.freeze冻结数据
+8：合理使用路由懒加载，异步组件,9：数据持久化问题（防抖，节流）
 - vue加载性能优化
 第三方模块按需导入babel-plugin-import
-滚动到可视区动态加载
-图片懒加载vue-lazyload
+滚动到可视区动态加载,图片懒加载vue-lazyload
 - 用户体验
-app-skeleton骨架屏
-pwa（serviceWorker）
-- SEO优化
-预渲染插件prerender-spa-plugin
-服务端渲染ssr
+app-skeleton骨架屏,pwa（serviceWorker）
 - 打包优化
-使用cdn加载第三方模块
-多线程打包happypack
+使用cdn加载第三方模块,多线程打包happypack
 - 缓存
-客户端缓存，服务端缓存
-服务端gzip压缩
+客户端缓存，服务端缓存,服务端gzip压缩
 ### 为什么要使用异步组件
 如果组件功能打包出的结果会变大，都可以采用异步的方式加载组件，主要依赖import这个语法，可以实现文件的分割加载
-components: {
-  AddCustomerSchedule: (resolve) => import('../component/AddCustomer)
-}
-### vue中使用了哪些设计模式
+components: {  AddCustomerSchedule: (resolve) => import('../component/AddCustomer)}
 
 ### 双向绑定和vuex是否冲突？
 ### vue内置组件transition，transition-grout源码实现原理
 ### patch函数都做了什么
-### 项目中如何实现权限校验
 ### vue.set原理
-### vue compile过程
-
 ### 描述组件的渲染和更新过程
 渲染组件：会通过Vue.extend方法构建子组件的构造函数，并进行实例化，最终手动调用$mount进行挂载
 更新组件会进行patchVnode流程，核心是diff算法
@@ -407,7 +382,7 @@ this.$router.push({path: '', params:{}, query: {} })可以通过query和params�
     路由独享守卫只在路由进入时有效，全局路由守卫是所有路由跳转都会被拦截
 ### 完整的导航解析流程
 1：导航被触发
-2：在失活的组件里调用离开守卫
+2：在失活的组件里调用离开守卫BeforeRouteLeave
 3：调用全局的beforeEach守卫
 4：在重用组件里调用beforeRouteUpdate守卫
 5：在路由配置里调用beforeEnter
@@ -418,6 +393,5 @@ this.$router.push({path: '', params:{}, query: {} })可以通过query和params�
 10：调用全局的afterEach钩子
 11：触发dom更新
 12：用创建好的实例调用beforeRouteEnter守卫传给next的回调函数
-
 ### vuex缺点
 ### mutations和actions为什么要区分

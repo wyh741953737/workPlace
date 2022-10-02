@@ -14,15 +14,6 @@ react可以说是目前为止最热门，生态最完善，应用范围最广的
 react-native是目前最优秀的非原生开发移动框架，一处开发，多端使用,使用Fiber对react核心算法进行重写，届时RN的性能将会上升，向原生紧逼。
 三，react生态之——服务器端
 react服务器端渲染最出色的：next.js。这是一个基于react可实现服务器和浏览器都能渲染的框架。
-
-### 如何根据不同应用场景，选择技术栈方案。
-1，开发后台应用
-react+react-router+redux+webpack+ant design （四星）
-react+dva+ant design （五星）
-2，开发前台web应用
-react+dva+bfd-ui/ant design （四星）
-react+dva+material-ui/react-toolbox （四星半）
-
 ### 实现一个简单的createStore
 const createStore = (reducer) => {
     let state;
@@ -97,15 +88,6 @@ SPA在前后端分离基础上加了前端路由。
 性能优化，对比props和state，没有发生改变返回false，不重写渲染组件
 ### jsx
 是js+xml是一个语法糖，javascript  XML，此文件使应用非常可靠并能提高性能
-### 虚拟DOM和真实dom,为什么虚拟DOm提高性能
-虚拟DOM: 更新快，无法直接操作dom，元素更新则更新jsx，dom操作简单，很少消耗内存
-真实DOM：更新慢，可直接操作DOM，元素更新直接创建新的DOM，DOM操作代价大，消耗内存多
-
-虚拟DOM是一个轻量级js对象，最初只是真实dom的副本，更多的是一种模式
-虚拟dom工作步骤：
-1）底层数据变，整个ui将在虚拟dom中重新渲染
-2）计算之前dom和新dom直接差异
-3）只用实际更改内容更新真实dom
 ###  render的目的
 ###  React diff
 ### 高阶函数和高阶函数意义
@@ -140,26 +122,16 @@ const elementsTree = super.render();
 调用HOC的时候每次都会返回一个新的组件不是一个引用，react以为发生了变化，去更替这个组件会导致之前组件的状态丢失。
 
 缺陷：
+无法从外部访问子组件的state因此无法通过shouldComponentUpdate过滤不必要更新，但是react支持es6之后提供pureComponent解决这个问题
+ref传值问题，ref被隔断，无法访问子组件，可以通过React.forwardRef解决
 HOC需要在原组件上进行包裹或者嵌套，如果大量使用HOC，将会产生很多嵌套，调试困难
-HOC可以劫持props，在不遵守约定情况下也可能造成冲突(原来传过来name为a，hoc中又传了个name覆盖)
+HOC可以劫持props，在不遵守约定情况下也可能造成冲突(命名冲突：原来传过来name为a，hoc中又传了个name覆盖)
 
 高阶组件应用场景：
 1：增强props，通过Context进行增强
 2：渲染判断鉴权： 开发中可能遇到:某些页面必须用户登录成功才能进入，没有登录直接跳到登录页面
 3： 生命周期函数劫持
 1）尽量不破坏原有函数，给某个对象添加方法在他执行前调用，把这个方法扩展到原型上（AOP面向切片编程）扩展原有方法，重写原有方法但是不破坏原有方法
-function say(who) { console.log(who+'说' )}
-Function.prototype.before = function(fn) {
-  let that =  this;
-  return function() {
-    fn();
-    that(...arguments)
-  }
-}
-
-let newFn = say.before(function(){console.log('hello')})
-newFn('我');
-
 ### 多个异步请求，如何同步获取最终结果？异步并发问题
 let fs = require('fs');
 let school = {}
@@ -199,13 +171,9 @@ clickHandle(e) {
     console.log(e.currentTarget.innerText) // undefined,在定时器之前把e.currentTarget.innerText保存起来
   })
 }
-clickHandle2(e) {
-  console.log(e.currentTarget.innerText) // btn2
-}
 ### 尽量不要在render里面写bind。将绑定挪到constructor
 在render里使用箭头函数，每次将方法传给子组件都会重新渲染
-深拷贝方法：拷贝之后会返回一个新的对象，和之前的引用关系断开了
-react采用这种的话，子组件无法判断有没变化，导致一个性能问题，和bind一样
+深拷贝方法，react采用这种的话，子组件无法判断有没变化，导致一个性能问题，和bind一样
 immutable：判断组件是否要更新
 ### react限制
 只是个库不是框架，库很大，要花时间理解
@@ -243,7 +211,7 @@ const OtherComp = React.lazy(() => import('./OtherComp'))
 React.lazy只支持默认导出，如果你想被引入的模块使用命名导出，你要创建一个中间模块来重新导出为默认模块，来保障treeShaking不会出错
 
 ### context
-Context提供无需为每层组件手动添加props就能在组件之间进行数据传递的方式，组件之间共享，使用contex可以避免通过中间元素传递props
+Context提供无需为每层组件手动添加props就能在组件之间进行数据传递的方式，组件之间共享，使用context可以避免通过中间元素传递props
 react典型数据传递：自上而下通过props传递
 - 何时用？ 对组件树来说是全局的数据，比如用户登录状态。当前认证的用户，主题
 - 如果你只想避免层层传递数据，可以组件组合
@@ -264,21 +232,15 @@ react典型数据传递：自上而下通过props传递
 从react16起，任何违背错误边界捕获的错误会导致整个react组件树被卸载
 
 ### refs转发
-将ref自动的通过组件传递到子组件的技巧
-
 const FancyButton = React.forwardFef((props, ref) => (
   <button ref={ref}>{props.children}</button>
 ))
-
  <FancyButton ref={ref}>点我</FancyButton> 这样可以访问到button
-
 React传递ref给forwardRef内函数作为第二个参数，我们想下转发ref到button当ref挂载完成，ref.current指向button的dom节点
-
 参数ref只在使用React.forwardRef定义组件时存在，常规函数和类组件不接收ref，且props中不存在ref
 当你组件库用来forwardRef是一个破坏性改变，不推荐用
 
-高级组件内用ref很有用
-ref不是props属性，就像key一样，其被react进行了特殊处理，如果你对HOC添加ref，该ref将引用最外层的容器组件而不是被包裹的组件。意味着不能调用ref.current.focus()这样的方法
+HOC内用ref很有用,如果你对HOC添加ref，该ref将引用最外层的容器组件而不是被包裹的组件。意味着不能调用ref.current.focus()这样的方法
 但我们可以通过React.forwardRef接受一个渲染函数，其接受props和ref参数并返回一个React节点
 ### redux三大核心：
 1）单一数据源：整个应用的state被存在一棵object tree中，并且这个树只存在唯一store中
@@ -317,10 +279,7 @@ react-redux能让你的react组件从redux store中很方便的读取数据，�
 
 provider接受store作为props，通过context往下传递，这样react中任何组件都可以通过context获取store。容器组件可能要很深的层级，防止了一层层传递。
 原理：react中的context
-connect：provider内部组件要用state就要用connect封装（加强）
-connect方便组件获取store中的state（内部实现：高阶组件）
-
-createStore(reducer, applyMiddleware(thunk, promise, logger))
+connect：provider内部组件要用state就要用connect封装（加强）connect方便组件获取store中的state（内部实现：高阶组件）
 
 connect(mapStateToProps, mapDispatchToProps)(Component)
 mapStateTpProps(state, ownProps) 将store中的数据作为props绑定到组件上，  省略的话就不会订阅store
@@ -354,7 +313,7 @@ reducer纯函数：只承担计算功能不适合其他
 view：与state对应不适合承担其他
 action：存数据，即消息载体，只能被别人操作自己不能有任何操作
 ### redux-thunk中间件
-中间件：独立运行于各个框架之间的代码，本质是一个函数，可以访问请求对象和响应函数，可以对请求进行拦截，处理后再将控制权向下传递，也可以终止请求。
+中间件：本质是一个函数，可以访问请求对象和响应函数，可以对请求进行拦截，处理后再将控制权向下传递，也可以终止请求。
 redux借鉴这种思想，中间件是运行在action发送出去后，达到reducer之间的一段代码
 action-》middleware-》reducer，这种机制可以让我们改变数据流，实现异步action，action过滤，异常报告等
 
@@ -389,7 +348,7 @@ createStore(reducer, applyMiddleware(thunk))
 改造后，store的dispatch可以接受函数作为参数
 因此异步操作的第一种解决反案就是写出一个返回函数的Action creator，然后用redux-thunk中间件改造store.dispatch
 
-### redux-Prommise
+### redux-Promise
 export default function promiseMiddleware({ dispatch }) => {
   return (next) => {
     return (action) => {
@@ -432,7 +391,7 @@ action.then(dispatch)
   - url: '/home'
 
 Router里面封装了很多方法，父组件里使用<Router>包装了<Route>，而子组件没有引入Router
-怎么在子组件之间共享状态？跨组件传数据
+怎么在子组件之间共享状态？跨组件传数据 
 context，将属性定义在Router，然后传到Route
 ### 调用setState之后发生什么
 
@@ -489,18 +448,9 @@ shouldComonentUpdate是进一步改善性能，慎用，用PureComponent替换�
 stack是深度优先遍历通过递归实现，嵌套的层级太深，一层层入栈，当某一层完成后出栈回到上一级，假设某个子节点还在运行，由于出现了更高优先级的任务，导致整个walk被打断（之前的多层入栈都被清除），当高优先级任务完成，我们无法仅通过被中断节点的引用恢复递归现场，我们既找不到它的兄弟节点也无法找到它的父亲节点
 
 ### Fiber
-React Fiber是在render/reconcilication协调阶段的核心调度算法进行了重构，commit还是同步的，不允许被打断，为了配合这次重构，React15到16，协调阶段的生命周期也发生了变化。
-
-Fiber是React的新的Reconciler， Reconciler是React的核心代码，是各个平台公用的。
-
-Reconciler即协调算法，用于计算新老差异，React16之前的Reconciler调度算法叫Stack reconciler。
-
-Stack Reconciler：递归遍历所有虚拟DOM阶段，进行diff，一旦开始，无法中断，要等整颗VDOM计算完才会释放主线程，而浏览器中渲染引擎和js引擎是互斥的，diff的过程中动画等周期性任务无法得到处理，就会出现卡顿即掉帧，影响用户体验
-
-React16采用增量渲染（incremental rendering）即异步渲染（async rendering）来解决掉帧，将渲染任务拆分为更小的任务，每次只做一个小任务，
-做完后就将时间控制权交给主线程去执行优先级更高的任务（动画，交互等），而不像之前那样长时间占用。
-
-尽管React16已使用了fiber架构，但是为了从16到17的平滑过渡以及新架构还在严重测试阶段，异步渲染并没有开启，还是采用同步渲染
+Fiber是React的新的协调算法，用于计算新老差异，React16之前的Reconciler调度算法叫Stack reconciler，递归遍历所有虚拟DOM阶段，进行diff，一旦开始，无法中断，要等整颗vDOM计算完才会释放主线程，而浏览器中渲染引擎和js引擎是互斥的，diff的过程中动画等周期性任务无法得到处理，就会出现卡顿即掉帧，影响用户体验。
+React16之后使用do..while循环将渲染任务拆分为更小的任务，每次只做一个小任务，做完后就将时间控制权交给主线程去执行优先级更高的任务（动画，交互等），而不像之前那样长时间占用。
+commit还是同步的，不允许被打断，为了配合这次重构，协调阶段的生命周期也发生了变化
 
 目前官方建议直接采用requestIdleCallback来降低某个可能耗时操作的优先级
 requestIdleCallback: 在线程空闲时间调度执行低优先级函数（可能会隔几帧）
@@ -552,31 +502,11 @@ Fiber数据结构：
     1：找fiber
     2：创建更新
     3：吧更新放到updateQueue上面
-    
-
-    进制形式，因此可以累加
-            export type  SideEffectTag: number;
-            export const NoEffect = 0;
-            export const PerformedWork = 1;
-            export const Placement = 2;
-            export const Update = 4;
-            export const PlaceAndUpdate = 6;
             ...
   fiber提供了一个叫effect list的数组，包含了需要改变的react element对应的fiber对象（firstEffect， lastEffect）
   effect list好处是可以快速拿到状态改变的DOM而不必遍历整颗React Root
 
-最早将Priority分为5级：
-{
-  NoWork: 0,
-  SynchronousPriority: 1,
-  TaskPriority: 2,
-  HighPriority: 3,
-  LowPriority: 4,
-  OffscreenPriority: 5,
-}
-划分时粒度不够细，后来又换成了基于时间的分级机制
-Sync代表同步模式，立即处理，优先级最高，为1
-Never代表不用执行，优先级最低
+最早将Priority分为5级：划分时粒度不够细，后来又换成了基于时间的分级机制
 
 一个React组件有current fiber和alternate fiber又叫workInProgress fiber
 当组件第一次render时构建的fiber树为current，接下来当组件状态改变时新构建的fiber树叫workInProgress，代表将来的新状态
@@ -600,19 +530,16 @@ current.alternate和updateQueue要同步
 每次复用workOInProgress是从current.alternate上拿
 复用的ternate上，updateQueue不一定有新的更新
 
+### 对time slice的理解
+时间分片：在react渲染时，不会阻塞现在的线程，如果你的设备足够快，你感觉渲染是同步的，如果你设备比较慢，你会感觉还算灵敏的虽然是异步渲染，但你会看到完整的渲染，而不是一个组件一行行出来的。也就是说对于开发者来说，是透明的。时间分片正是基于可以随时打断，重启fiber，保证页面流畅运行。
 ### 为什么react路由v4中使用switch关键字
 ###   列出React Router的优点
-### Mixin
+### Mixin，react如何实现复用
 react早期用mixin，后来用高阶组件，现在hooks
 mixin可能会相互依赖，相互耦合，不利于代码维护
-不同mixin中方法可能会冲突，mixin很多时，组件是可以感知到的，甚至还要为期做相关处理，这样会给代码造成滚雪球式的复杂性
-
-### ref的类型
-用在html元素里：<div ref={this.reftest}> 构造函数用React.createRef创建的ref接收底层dom元素作为其current属性
-放到一个类组件上面： <Counter ref={this.counterRef}> this.counterRef.current.increment()父组件调用子组件的函数
-ref用在组件上获取到的是组件对象
-组件是函数组件获取不到（函数组件没有实例对象）。但是有时候我们需要获取到，可以通过React.forwardRef高阶组件来获取，
-
+mixin存在隐式依赖，导致关系不透明，也难以维护，因为mixin最终代码会被合并，不清楚mixin的输入和输出，组件自身的方法和state不敢删除，因为不确定mixin中是否依赖
+多个mixin之间可能会产生冲突（比如定义了相同的state）
+高阶组件：通过props影响组件内部，而不是直接修改state不存在冲突，降低了耦合度。react-hooks，渲染属性。
 ### render函数的返回值
 1）react元素，
 2）数组或者fragment
@@ -629,10 +556,12 @@ React.createPortal(child,container)
 通常你从组件的render方法返回一个元素时，该元素将被挂载到dom节点中距离其最近的父节点
 
 Modal案例：
-
 antd中modal中是创建一个div然后添加到document，作为第三方库，就动态创建加到body里面
 
 ### react hooks
+破环了pureComponent和React。memo浅比较的性能（为了取最新的props和state，每次render都要重新创建事件处理函数）
+React.memo不能完全替代shouldComponentUpdate,因为拿不到state改变只针对props。
+
 hook是js函数，不能破坏两个规则：不只能在函数外层调用hook，不要在循环，条件判断或者子函数中调用，保证顺序和第一次执行时一致（hooks内部使用数组和索引维护hooks）
 与类组件的setState不同，useState不会自动合并更新对象，你可以用函数式的setState结合展开运算符来合并更新对象的结果
 setState(prevState => { 
@@ -680,6 +609,7 @@ useMemo不传依赖项，会在每次渲染时重新计算新的值
 
 useRef返回一个可变的ref对象，其current被初始化为传入的参数，返回ref对象在组件整个生命周期内保持不变
 useRef会在每次渲染时返回同一个ref对象
+createRef每次都会返回一个新的对象
 
 useImperativeHandle(ref, createHandle, [deps])可以让你在使用ref时自定义暴露给父组件的实例值，它要和forwardRef一起用
 
@@ -728,33 +658,18 @@ const eventBus = new EventEmitter();
 当使用了Concurrent组件的时候才是真正异步，但同样无法立即获取新的状态，并且在执行渲染（生成fiber阶段）和更新时候是用来真正异步方式
 
 异步更新：组件的生命周期，react的合成事件里面是异步的
-为什么要设计成异步？
-1）提升性能，每次调用setState意味着render函数会被频繁调用，界面重新渲,效率很低，最好办法是获取到多个更新，之后批量更新
+为什么要设计成异步？：1）提升性能，每次调用setState意味着render函数会被频繁调用，界面重新渲,效率很低，最好办法是获取到多个更新，之后批量更新
 如果同步更新了state，但是还没执行render函数，那么state和props不能保持同步，state和props不能保持一致性在开发过程会遇到很多问题
 
-如何获取异步的结果？
-1）setState的第二个参数
-2）生命周期componentDidUpdate（源码中调调用componentDidUpdate在执行setState第二个参数
-
+如何获取异步的结果？1）setState的第二个参数
 同步更新：定时器是异步的，将setState放在定时器执行是同步的
 原生的事件监听：在componentDidMount里面，通过document获取dom，监听按钮点击，将setState放在里面是同步的，react源码里面做了一个判断 
 ### setState数据的合并
 源码里面通过object.assign来处理Object.assign({}, this.state, {name: 'B' }); Object.assign({}, prevState,partialState)
 ### setState本身的合并
-increment(){
-  this.setSate({count: this.state.count+1})
-  this.setSate({count: this.state.count+1})
-}
-结果不管你调用几次setState拿到的结果都是1
-源码中会用do。while来遍历队列，链表中多个setSate，只有最后一次生效。
+多次对同一个值setState，源码中会用do。while来遍历队列，链表中多个setSate，只有最后一次生效。
 
 setState合并时候进行累加
-this.setSate((prevState, props) => {
-  return {
-    count: prevState.count+1
-  }
-})
-
 this.setSate((prevState, props) => {
   return {
     count: prevState.count+1
